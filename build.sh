@@ -1,1 +1,2 @@
-gcc -std=c99 -g  main.c && ./a.out --run-tests
+make
+./pcap_analyzer_ut

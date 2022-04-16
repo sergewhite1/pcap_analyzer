@@ -131,4 +131,6 @@ int process_pcap_file(const char* inp_filename,
                       const char* out_filename,
                       packet_process_func_t callback);
 
+int pcap_analyzer_set_verbose(int val);
+
 #endif // ! PCAP_ANALYZER_H

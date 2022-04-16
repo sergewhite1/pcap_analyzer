@@ -9,7 +9,6 @@ int ipv4_udp_callback_result;
 
 action_t ipv4_udp_test_callback(const packet_desc_t* packet_desc_ptr)
 {
-  printf("ipv4_udp_test_callback\n");
   ipv4_udp_callback_result = 1;
 
   const int packet_index_expected = 1;
@@ -355,6 +354,7 @@ action_t ipv4_udp_test_callback(const packet_desc_t* packet_desc_ptr)
   }
 
   ipv4_udp_callback_result = 0;
+
   return action_skip;
 }
 
@@ -366,9 +366,67 @@ int ipv4_udp_test()
   return ipv4_udp_callback_result;
 }
 
+int vlan_ipv4_udp_callback_result;
+
+action_t vlan_ipv4_udp_test_callback(const packet_desc_t* packet_desc_ptr)
+{
+  vlan_ipv4_udp_callback_result = 1;
+
+  const int packet_index_expected = 1;
+
+  if (packet_desc_ptr->index != packet_index_expected)
+  {
+    printf("packet_desc_ptr->index=%d expected value=%d\n",
+           packet_desc_ptr->index,
+           packet_index_expected);
+    return action_skip;
+  }
+
+  uint16_t data_size_actual   = packet_desc_ptr->data_size;
+  uint16_t data_size_expected = 50;
+
+  if (data_size_actual != data_size_expected)
+  {
+    printf("data_size actual: %d expected: %d\n",
+           data_size_actual,
+           data_size_expected);
+
+    return action_skip;
+  }
+
+  const uint8_t* data = packet_desc_ptr->data;
+
+  if (data == NULL)
+  {
+    printf("data == NULL\n");
+    return action_skip;
+  }
+
+  int data_comp = (data[ 0] == 0xA0) &&
+                  (data[ 1] == 0xE4) &&
+                  (data[ 2] == 0x01) &&
+                  (data[47] == 0x20) &&
+                  (data[48] == 0x00) &&
+                  (data[49] == 0x01);
+
+  if (data_comp == 0)
+  {
+    printf("data validation failed!\n");
+    return action_skip;
+  }
+
+  vlan_ipv4_udp_callback_result = 0;
+
+  return action_skip;
+}
+
 int vlan_ipv4_udp_test()
 {
-  return 1;
+  process_pcap_file("./pcap/vlan_ipv4_udp.pcap",
+                    NULL,
+                    vlan_ipv4_udp_test_callback);
+
+  return vlan_ipv4_udp_callback_result;
 }
 
 typedef struct __test_record_t
@@ -387,6 +445,8 @@ const size_t TEST_COUT = sizeof(TEST_RECORDS) / sizeof(TEST_RECORDS[0]);
 int main()
 {
   printf("run tests...\n");
+
+  pcap_analyzer_set_verbose(0);
 
   int ret = 0;
   int test_result;
@@ -414,7 +474,7 @@ int main()
              test_result == 0 ? "SUCCESS" : "FAILED");
   }
 
-  printf("Total test count: %ld success: %ld failed: %ld\n",
+  printf("\nTotal test count: %ld success: %ld failed: %ld\n",
          TEST_COUT,
          success_count,
          failed_count);

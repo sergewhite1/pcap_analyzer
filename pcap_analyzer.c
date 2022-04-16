@@ -30,6 +30,8 @@ uint16_t get_ip_hdr_len_in_bytes(const ip_packet_t* ip_packet_ptr)
   return (ip_packet_ptr->version_header_length & 0xF) * 4;
 }
 
+static int verbose = 1;
+
 int process_pcap_file(const char* inp_filename,
                       const char* out_filename,
                       packet_process_func_t callback)
@@ -83,17 +85,27 @@ int process_pcap_file(const char* inp_filename,
 
     pcap_file_hdr_t* pcap_file_hdr_ptr = (pcap_file_hdr_t*)buff;
 
-    printf("pcap version: %d.%d\n",
-           pcap_file_hdr_ptr->major_version,
-           pcap_file_hdr_ptr->minor_version);
-
-    if (pcap_file_hdr_ptr->magic_number == PCAP_FILE_HDR_MAGIC_NUMBER_MICROSECONDS)
+    if (verbose)
     {
-      printf("pcap packet timestamp: microseconds\n");
+      printf("pcap version: %d.%d\n",
+             pcap_file_hdr_ptr->major_version,
+             pcap_file_hdr_ptr->minor_version);
+    }
+
+    if (pcap_file_hdr_ptr->magic_number ==
+        PCAP_FILE_HDR_MAGIC_NUMBER_MICROSECONDS)
+    {
+      if (verbose)
+      {
+        printf("pcap packet timestamp: microseconds\n");
+      }
     }
     else if (pcap_file_hdr_ptr->magic_number == PCAP_FILE_HDR_MAGIC_NUMBER_NANOSECONDS)
     {
-      printf("pcap packet timestamp: nanoseconds\n");
+      if (verbose)
+      {
+        printf("pcap packet timestamp: nanoseconds\n");
+      }
     }
     else
     {
@@ -105,7 +117,10 @@ int process_pcap_file(const char* inp_filename,
       break;
     }
 
-    printf("snap len: %d bytes\n", pcap_file_hdr_ptr->snap_len);
+    if (verbose)
+    {
+      printf("snap len: %d bytes\n", pcap_file_hdr_ptr->snap_len);
+    }
 
     if (out_file)
     {
@@ -115,7 +130,9 @@ int process_pcap_file(const char* inp_filename,
     // Analyze Pcap Packets
     while(1)
     {
-      if (packet_index % 1000000 == 0)
+      ++packet_index;
+
+      if (verbose && packet_index % 1000000 == 0)
       {
         printf("packet_index=%d\n", packet_index);
       }
@@ -124,14 +141,14 @@ int process_pcap_file(const char* inp_filename,
 
       if (read_count != sizeof(packet_record_t))
       {
-        printf("current packet_index=%d\n", packet_index);
+        if (verbose)
+        {
+          printf("current packet_index=%d\n", packet_index);
+        }
         break;
       }
 
-      ++packet_index;
       packet_desc.index = packet_index;
-
-      printf("!!!timestamp seconds: %d\n", packet_desc.packet_record_ptr->timestamp_seconds);
 
       if (packet_desc.packet_record_ptr->captured_packet_length !=
           packet_desc.packet_record_ptr->original_packet_length)
@@ -220,26 +237,12 @@ int process_pcap_file(const char* inp_filename,
         break;
       }
 
-      //printf("version: %d\n", version);
-
-//      uint16_t ip_packet_hdr_len = get_ip_hdr_len_in_bytes(packet_desc.ip_packet_ptr);
-//      printf("ip_packet_hdr_len=%d bytes \n", ip_packet_hdr_len);
-//      printf("ip_packet_ptr->total_length=%d\n", ntohs(packet_desc.ip_packet_ptr->total_length));
-//      printf("ip_packet_ptr->protocol=%d\n", packet_desc.ip_packet_ptr->protocol);
-
       packet_desc.udp_hdr_ptr = (udp_hdr_t*)(
         (char*)(packet_desc.ip_packet_ptr) +
         get_ip_hdr_len_in_bytes(packet_desc.ip_packet_ptr));
 
-      printf("udp_hdr_ptr->src_port=%d\n", ntohs(packet_desc.udp_hdr_ptr->src_port));
-      printf("udp_hdr_ptr->total_length=%d\n", ntohs(packet_desc.udp_hdr_ptr->total_length));
-
       packet_desc.data = (uint8_t*) packet_desc.udp_hdr_ptr + sizeof(udp_hdr_t);
       packet_desc.data_size = ntohs(packet_desc.udp_hdr_ptr->total_length) - sizeof(udp_hdr_t);
-
-      printf("packet_desc.data_size=%d\n", packet_desc.data_size);
-
-      printf("\n");
 
       action_t action = callback(&packet_desc);
 
@@ -275,4 +278,9 @@ int process_pcap_file(const char* inp_filename,
   }
 
   return ret;
+}
+
+int pcap_analyzer_set_verbose(int val)
+{
+  verbose = val;
 }

@@ -143,6 +143,7 @@ typedef struct __packet_desc_t
   ip_packet_t*     ip_packet_ptr;
   udp_hdr_t*       udp_hdr_ptr;
   uint8_t*         data;
+  uint16_t         data_size;
 } packet_desc_t;
 
 typedef enum __action_t {
@@ -327,40 +328,43 @@ int process_pcap_file(const char* inp_filename,
         break;
       }
 
-//      uint8_t version = get_ip_hdr_version(ip_packet_ptr);
-//      if (version != 4)
-//      {
-//        printf("Error! Version in IP header=%d Expected value: 4\n", version);
-//        ret = 1;
-//        break;
-//      }
+      uint8_t version = get_ip_hdr_version(packet_desc.ip_packet_ptr);
+      if (version != 4)
+      {
+        printf("Error! Version in IP header=%d Expected value: 4\n", version);
+        ret = 1;
+        break;
+      }
 
-//      if (ip_packet_ptr->protocol != 17)
-//      {
-//        printf("Error! ip_packet_ptr->protocol=%d Expected value: 17 (UDP)\n", ip_packet_ptr->protocol);
-//        ret = 1;
-//        break;
-//      }
+      if (packet_desc.ip_packet_ptr->protocol != IPPROTO_UDP)
+      {
+        printf("Error! ip_packet_ptr->protocol=%d Expected value: %d (UDP)\n",
+               packet_desc.ip_packet_ptr->protocol,
+               IPPROTO_UDP);
+        ret = 1;
+        break;
+      }
 
       //printf("version: %d\n", version);
 
-//      uint16_t ip_packet_hdr_len = get_ip_hdr_len_in_bytes(ip_packet_ptr);
+//      uint16_t ip_packet_hdr_len = get_ip_hdr_len_in_bytes(packet_desc.ip_packet_ptr);
 //      printf("ip_packet_hdr_len=%d bytes \n", ip_packet_hdr_len);
-//      printf("ip_packet_ptr->total_length=%d\n", ntohs(ip_packet_ptr->total_length));
-//      printf("ip_packet_ptr->protocol=%d\n", ip_packet_ptr->protocol);
-//
-//      udp_hdr_t * udp_hdr_ptr = (udp_hdr_t*)((char*)(ip_packet_ptr) + get_ip_hdr_len_in_bytes(ip_packet_ptr));
-//      printf("udp_hdr_ptr->src_port=%d\n", ntohs(udp_hdr_ptr->src_port));
-//      printf("udp_hdr_ptr->total_length=%d\n", ntohs(udp_hdr_ptr->total_length));
+//      printf("ip_packet_ptr->total_length=%d\n", ntohs(packet_desc.ip_packet_ptr->total_length));
+//      printf("ip_packet_ptr->protocol=%d\n", packet_desc.ip_packet_ptr->protocol);
 
-//      uint8_t * udp_data = (uint8_t*)udp_hdr_ptr + sizeof(udp_hdr_t);
-//      uint32_t  udp_data_len = ntohs(udp_hdr_ptr->total_length) - sizeof(udp_hdr_t);
+      packet_desc.udp_hdr_ptr = (udp_hdr_t*)(
+        (char*)(packet_desc.ip_packet_ptr) +
+        get_ip_hdr_len_in_bytes(packet_desc.ip_packet_ptr));
 
-//      printf("udp_data_len=%d\n", udp_data_len);
+      printf("udp_hdr_ptr->src_port=%d\n", ntohs(packet_desc.udp_hdr_ptr->src_port));
+      printf("udp_hdr_ptr->total_length=%d\n", ntohs(packet_desc.udp_hdr_ptr->total_length));
 
-//      printf("\n");
+      packet_desc.data = (uint8_t*) packet_desc.udp_hdr_ptr + sizeof(udp_hdr_t);
+      packet_desc.data_size = ntohs(packet_desc.udp_hdr_ptr->total_length) - sizeof(udp_hdr_t);
 
-//      int need_copy = 0;
+      printf("packet_desc.data_size=%d\n", packet_desc.data_size);
+
+      printf("\n");
 
       action_t action = callback(&packet_desc);
 
@@ -418,6 +422,12 @@ action_t ipv4_udp_test_callback(const packet_desc_t* packet_desc_ptr)
   const packet_record_t* packet_record_ptr =
   packet_desc_ptr->packet_record_ptr;
 
+  if (packet_record_ptr == NULL)
+  {
+    printf("packet_record_ptr == NULL\n");
+    return action_skip;
+  }
+
   const uint32_t packet_timestamp_seconds_expected = 1649599520;
   if (packet_record_ptr->timestamp_seconds !=
       packet_timestamp_seconds_expected)
@@ -464,6 +474,12 @@ action_t ipv4_udp_test_callback(const packet_desc_t* packet_desc_ptr)
 
   ethernet_hdr_t* ethernet_hdr_ptr = packet_desc_ptr->ethernet_hdr_ptr;
 
+  if (ethernet_hdr_ptr == NULL)
+  {
+    printf("ethernet_hdr_ptr == NULL\n");
+    return action_skip;
+  }
+
   const char* dst_mac_address_actual =
   mac_addr_to_str(ethernet_hdr_ptr->dst_mac_address);
 
@@ -501,7 +517,239 @@ action_t ipv4_udp_test_callback(const packet_desc_t* packet_desc_ptr)
     return action_skip;
   }
 
-  //TODO: Continue testing
+  ip_packet_t* ip_packet_ptr = packet_desc_ptr->ip_packet_ptr;
+
+  if (ip_packet_ptr == NULL)
+  {
+    printf("ip_packet_ptr == NULL\n");
+    return action_skip;
+  }
+
+  uint8_t ip_version_expected = 4;
+  uint8_t ip_version_actual = get_ip_hdr_version(ip_packet_ptr);
+
+  if (ip_version_actual != ip_version_expected)
+  {
+    printf("ip_packet_ptr version"
+           " actual result: %d expected result: %d\n",
+           ip_version_actual,
+           ip_version_expected);
+
+    return action_skip;
+  }
+
+  uint16_t ip_hdr_len_expected = 20; // bytes
+  uint16_t ip_hdr_len_actual = get_ip_hdr_len_in_bytes(ip_packet_ptr);
+
+  if (ip_hdr_len_actual != ip_hdr_len_expected)
+  {
+   printf("ip_packet_ptr hdr_len_in_bytes"
+          " actual result: %d expected result: %d\n",
+          ip_hdr_len_actual,
+          ip_hdr_len_expected);
+
+    return action_skip;
+  }
+
+  if (ip_packet_ptr->type_of_service != 0)
+  {
+    printf("ip_packet_ptr->type_of_service"
+           " actual result: %d expected result: %d\n",
+           ip_packet_ptr->type_of_service,
+           0);
+
+    return action_skip;
+  }
+
+  uint16_t ip_packet_total_length_expected = 66;
+
+  uint16_t ip_packet_total_length_actual =
+  htons(ip_packet_ptr->total_length);
+
+  if (ip_packet_total_length_actual != ip_packet_total_length_expected)
+  {
+    printf("ip packet total length"
+           " actual result: %d expected result: %d\n",
+           ip_packet_total_length_actual,
+           ip_packet_total_length_expected);
+
+    return action_skip;
+  }
+
+  uint16_t ip_packet_indentifiction_expected = 0xA932;
+  uint16_t ip_packet_indentifiction_actual =
+  htons(ip_packet_ptr->indentification);
+
+  if (ip_packet_indentifiction_actual != ip_packet_indentifiction_expected)
+  {
+    printf("ip packet indentification"
+           " actual result: %d expected result: %d\n",
+           ip_packet_indentifiction_actual,
+           ip_packet_indentifiction_expected);
+
+    return action_skip;
+  }
+
+  uint16_t ip_packet_flags_fragment_offset_expected = 0x4000;
+  uint16_t ip_packet_flags_fragment_offset_actual =
+  htons(ip_packet_ptr->flags_fragment_offset);
+
+  if (ip_packet_flags_fragment_offset_actual !=
+      ip_packet_flags_fragment_offset_expected)
+  {
+    printf("ip packet flags fragment offset"
+           " actual result: %d expected result: %d\n",
+           ip_packet_flags_fragment_offset_actual,
+           ip_hdr_len_expected);
+
+    return action_skip;
+  }
+
+  if (ip_packet_ptr->time_to_leave != 1)
+  {
+    printf("ip_packet_ptr->time_to_leave"
+           " actual result: %d expected result: %d\n",
+           ip_packet_ptr->time_to_leave,
+           1);
+
+    return action_skip;
+  }
+
+  if (ip_packet_ptr->protocol != IPPROTO_UDP)
+  {
+    printf("ip_packet_ptr->protocol"
+           " actual result: %d expected result: %d (UDP)",
+           ip_packet_ptr->protocol,
+           IPPROTO_UDP);
+
+    return action_skip;
+  }
+
+  uint16_t ip_packet_hdr_checksum_expected = 0x43;
+  uint16_t ip_packet_hdr_checksum_actual =
+  ntohs(ip_packet_ptr->header_checksum);
+
+  if (ip_packet_hdr_checksum_actual != ip_packet_hdr_checksum_expected)
+  {
+    printf("ip packet hdr checksum"
+           " actual result: 0x%X expected result: 0x%X\n",
+           ip_packet_hdr_checksum_actual,
+           ip_packet_hdr_checksum_expected);
+
+    return action_skip;
+  }
+
+  const char* src_addr_expected = "192.168.31.146";
+  char src_addr_actual[INET_ADDRSTRLEN];
+  struct sockaddr_in sa;
+  sa.sin_addr.s_addr = ip_packet_ptr->src_address;
+  inet_ntop(AF_INET, &(sa.sin_addr), src_addr_actual, INET_ADDRSTRLEN);
+
+  if (strcmp(src_addr_actual, src_addr_expected) != 0)
+  {
+    printf("src addr actual result: %s expected result: %s\n",
+          src_addr_actual,
+          src_addr_expected);
+
+    return action_skip;
+  }
+
+  const char* dst_addr_expected = "239.255.255.251";
+  char dst_addr_actual[INET_ADDRSTRLEN];
+  sa.sin_addr.s_addr = ip_packet_ptr->dst_address;
+  inet_ntop(AF_INET, &(sa.sin_addr), dst_addr_actual, INET_ADDRSTRLEN);
+
+  if (strcmp(dst_addr_actual, dst_addr_expected) != 0)
+  {
+    printf("dst addr actual result: %s expected result: %s\n",
+           dst_addr_actual,
+           dst_addr_expected);
+
+    return action_skip;
+  }
+
+  udp_hdr_t* udp_hdr_ptr = packet_desc_ptr->udp_hdr_ptr;
+
+  if (udp_hdr_ptr == NULL)
+  {
+    printf("udp_hdr_ptr == NULL\n");
+    return action_skip;
+  }
+
+  uint16_t src_port_expected = 10101;
+  uint16_t src_port_actual = ntohs(udp_hdr_ptr->src_port);
+
+  if (src_port_actual != src_port_expected)
+  {
+    printf("src_port actual result: %d expected result: %d\n",
+          src_port_actual,
+          src_port_expected);
+
+    return action_skip;
+  }
+
+  uint16_t dst_port_expected = 10101;
+  uint16_t dst_port_actual = ntohs(udp_hdr_ptr->dst_port);
+
+  if (dst_port_actual != dst_port_expected)
+  {
+    printf("dst posrt actual result: %d expected result: %d\n",
+            dst_port_actual,
+            dst_port_expected);
+    return action_skip;
+  }
+
+  uint16_t udp_hdr_total_length_expected = 46;
+  uint16_t udp_hdr_total_length_actual = ntohs(udp_hdr_ptr->total_length);
+
+  if (udp_hdr_total_length_actual != udp_hdr_total_length_expected)
+  {
+    printf("udp hdr total lenth actual result: %d expected result: %d\n",
+           udp_hdr_total_length_actual,
+           udp_hdr_total_length_expected);
+    return action_skip;
+  }
+
+  uint16_t udp_hdr_checksum_expected = 0xE6B4;
+  uint16_t udp_hdr_checksum_actual = ntohs(udp_hdr_ptr->checksum);
+
+  if (udp_hdr_checksum_actual != udp_hdr_checksum_expected)
+  {
+    printf("udp hdr checksum actual result: 0x%X expected result: 0x%X\n",
+          udp_hdr_checksum_actual,
+          udp_hdr_checksum_expected);
+    return action_skip;
+  }
+
+  uint16_t data_size_expected = 38;
+  uint16_t data_size_actual = packet_desc_ptr->data_size;
+
+  if (data_size_actual != data_size_expected)
+  {
+    printf("data size actual result: %d expected result: %d\n",
+          data_size_actual,
+          data_size_expected);
+    return action_skip;
+  }
+
+  uint8_t* data = packet_desc_ptr->data;
+
+  if (data == NULL)
+  {
+    printf("data == NULL\n");
+    return action_skip;
+  }
+
+  int data_comp = data[0]  == 0x0A &&
+                  data[1]  == 0x20 &&
+                  data[2]  == 0x34 &&
+                  data[37] == 0x14;
+
+  if (!data_comp)
+  {
+    printf("data validation failed!");
+    return action_skip;
+  }
 
   ipv4_udp_callback_result = 0;
   return action_skip;
@@ -681,9 +929,11 @@ int main(int argc, char* argv[])
         break;
       }
 
-      if (ip_packet_ptr->protocol != 17)
+      if (ip_packet_ptr->protocol != IPPROTO_UDP)
       {
-        printf("Error! ip_packet_ptr->protocol=%d Expected value: 17 (UDP)\n", ip_packet_ptr->protocol);
+        printf("Error! ip_packet_ptr->protocol=%d Expected value: %d (UDP)\n",
+               ip_packet_ptr->protocol,
+               IPPROTO_UDP);
         ret = 1;
         break;
       }

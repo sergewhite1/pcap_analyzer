@@ -366,22 +366,58 @@ int ipv4_udp_test()
   return ipv4_udp_callback_result;
 }
 
+int vlan_ipv4_udp_test()
+{
+  return 1;
+}
+
+typedef struct __test_record_t
+{
+  const char* name;
+  int (*func)();
+} test_record_t;
+
+const test_record_t TEST_RECORDS[] = {
+  {"     ipv4_udp_test",      ipv4_udp_test},
+  {"vlan_ipv4_udp_test", vlan_ipv4_udp_test}
+};
+
+const size_t TEST_COUT = sizeof(TEST_RECORDS) / sizeof(TEST_RECORDS[0]);
+
 int main()
 {
   printf("run tests...\n");
 
   int ret = 0;
+  int test_result;
+  size_t success_count = 0;
+  size_t failed_count  = 0;
 
-  // UDP IPv4
-  if (ipv4_udp_test() == 0)
+  for (size_t i = 0; i < TEST_COUT; ++i)
   {
-    printf("ipv4_udp_test: SUCCESS\n");
+    test_result = TEST_RECORDS[i].func();
+
+    if (test_result == 0)
+    {
+      ++success_count;
+    }
+    else
+    {
+      ++failed_count;
+      ret = 1;
+    }
+
+    printf("[%ld/%ld] %s: %s\n",
+             i+1,
+             TEST_COUT,
+             TEST_RECORDS[i].name,
+             test_result == 0 ? "SUCCESS" : "FAILED");
   }
-  else
-  {
-    ret = 1;
-    printf("udp_ipv4_test: FAILED\n");
-  }
+
+  printf("Total test count: %ld success: %ld failed: %ld\n",
+         TEST_COUT,
+         success_count,
+         failed_count);
 
   return ret;
 }

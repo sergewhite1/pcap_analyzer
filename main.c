@@ -70,14 +70,19 @@ typedef struct __packet_record_t
   uint32_t original_packet_length;
 } packet_record_t;
 
-// IEEE 802.1Q with TCI (Tag Control Information)
+#define ETH_PROTOCOL_IP4   0x0800
+#define ETH_PROTOCOL_8021Q 0x8100
+
 typedef struct __ethernet_hdr_t
 {
   uint8_t  dst_mac_address[6];
   uint8_t  src_mac_address[6];
-  uint16_t ether_type;  // must be 0x8100 in host byte order
+  uint16_t ether_type;
+
+  // IEEE 802.1Q with TCI (Tag Control Information)
   uint16_t tci;
-  uint16_t ether_type2; // must be 0x8000 in host byte order - IPv4
+  uint16_t ether_type2;
+
 } ethernet_hdr_t;
 
 typedef struct __ip_packet_t
@@ -264,50 +269,63 @@ int process_pcap_file(const char* inp_filename,
         break;
       }
 
-//      if (pa)
+      packet_desc.ethernet_hdr_ptr = (ethernet_hdr_t*)
+      (buff + sizeof(packet_record_t));
 
-//      read_count = fread(buff + sizeof(packet_record_t),
-//                         1,
-//                         packet_record_ptr->captured_packet_length,
-//                         src_file);
+      read_count = fread(packet_desc.ethernet_hdr_ptr,
+                         1,
+                         packet_desc.packet_record_ptr->captured_packet_length,
+                         inp_file);
+
+      if (read_count != packet_desc.packet_record_ptr->captured_packet_length)
+      {
+        printf("Error reading captured packet data.\n");
+        ret = 1;
+        break;
+      }
+
+//      printf("dst MAC address: %s\n",
+//             mac_addr_to_str(packet_desc.ethernet_hdr_ptr->dst_mac_address));
 //
-//      if (read_count != packet_record_ptr->captured_packet_length)
-//      {
-//        printf("Error reading captured packet data.\n");
-//        ret = 1;
-//        break;
-//      }
+//      printf("src MAC address: %s\n",
+//             mac_addr_to_str(packet_desc.ethernet_hdr_ptr->src_mac_address));
+//
+//      printf("ether_type : 0x%02X\n",
+//             ntohs(packet_desc.ethernet_hdr_ptr->ether_type));
+//
+//      printf("ether_type2: 0x%02X\n",
+//             ntohs(packet_desc.ethernet_hdr_ptr->ether_type2));
 
+      if (ntohs(packet_desc.ethernet_hdr_ptr->ether_type) == ETH_PROTOCOL_8021Q)
+      {
+        packet_desc.ip_packet_ptr = (ip_packet_t*)
+        (buff + sizeof(packet_record_t) + sizeof(ethernet_hdr_t));
 
-
-      //printf("dst MAC address: %s\n", mac_addr_to_str(ethernet_hdr_ptr->dst_mac_address));
-      //printf("src MAC address: %s\n", mac_addr_to_str(ethernet_hdr_ptr->src_mac_address));
-      //printf("ether_type : 0x%02X\n", ethernet_hdr_ptr->ether_type);
-      //printf("ether_type2: 0x%02X\n", ethernet_hdr_ptr->ether_type2);
-
-//      if (ntohs(ethernet_hdr_ptr->ether_type) == 0x8100)
-//      {
-//        ip_packet_ptr = (ip_packet_t*)(buff + sizeof(packet_record_t) + sizeof(ethernet_hdr_t));
-//        if (ntohs(ethernet_hdr_ptr->ether_type2) != 0x0800)
-//        {
-//          printf("Error! ethernet_hdr_ptr->ether_type2=0x%02X Expected value: 0x0800 (Type: IPv4)\n",
-//                ntohs(ethernet_hdr_ptr->ether_type2));
-//          ret = 1;
-//          break;
-//        }
-//      }
-//      else if (ntohs(ethernet_hdr_ptr->ether_type) == 0x800)
-//      {
-//        ip_packet_ptr = (ip_packet_t*)(buff + sizeof(packet_record_t) + sizeof(ethernet_hdr_t) - 4);
-//      }
-//      else
-//      {
-//        printf("Error! ethernet_hdr_ptr->ether_type=0x%02X Expected values: 0x800 (Type: IPv4), 0x8100 (Type: 802.1Q Virtual LAN)\n",
-//            ntohs(ethernet_hdr_ptr->ether_type));
-//        ret = 1;
-//        break;
-//      }
-
+        if (ntohs(packet_desc.ethernet_hdr_ptr->ether_type2) != ETH_PROTOCOL_IP4)
+        {
+          printf("Error! ethernet_hdr_ptr->ether_type2=0x%X Expected value: 0x%X (Type: IPv4)\n",
+                ntohs(packet_desc.ethernet_hdr_ptr->ether_type2),
+                ETH_PROTOCOL_IP4);
+          ret = 1;
+          break;
+        }
+      }
+      else if (ntohs(packet_desc.ethernet_hdr_ptr->ether_type) == ETH_PROTOCOL_IP4)
+      {
+        packet_desc.ip_packet_ptr = (ip_packet_t*)
+        (buff + sizeof(packet_record_t) + sizeof(ethernet_hdr_t) - 4);
+      }
+      else
+      {
+        printf("Error! ethernet_hdr_ptr->ether_type=0x%X"
+               " Expected values: 0x%X (Type: IPv4),"
+               " 0x%X (Type: 802.1Q Virtual LAN)\n",
+               ntohs(packet_desc.ethernet_hdr_ptr->ether_type),
+               ETH_PROTOCOL_IP4,
+               ETH_PROTOCOL_8021Q);
+        ret = 1;
+        break;
+      }
 
 //      uint8_t version = get_ip_hdr_version(ip_packet_ptr);
 //      if (version != 4)
@@ -441,6 +459,45 @@ action_t ipv4_udp_test_callback(const packet_desc_t* packet_desc_ptr)
            " actual result: %d expected result: %d\n",
            packet_record_ptr->original_packet_length,
            original_packet_length_expected);
+    return action_skip;
+  }
+
+  ethernet_hdr_t* ethernet_hdr_ptr = packet_desc_ptr->ethernet_hdr_ptr;
+
+  const char* dst_mac_address_actual =
+  mac_addr_to_str(ethernet_hdr_ptr->dst_mac_address);
+
+  const char* dst_mac_address_expected = "01:00:5E:7F:FF:FB";
+
+  if (strcmp(dst_mac_address_actual, dst_mac_address_expected) != 0)
+  {
+    printf("dst_mac_address actual result: %s expected result: %s\n",
+           dst_mac_address_actual,
+           dst_mac_address_expected);
+    return action_skip;
+  }
+
+  const char* src_mac_address_actual =
+  mac_addr_to_str(ethernet_hdr_ptr->src_mac_address);
+
+  const char* src_mac_address_expected = "8C:5A:F8:EB:6F:01";
+
+  if (strcmp(src_mac_address_actual, src_mac_address_expected) != 0)
+  {
+    printf("src_mac_address actual result: %s expected result: %s\n",
+           src_mac_address_actual,
+           src_mac_address_expected);
+
+    return action_skip;
+  }
+
+  if (ntohs(ethernet_hdr_ptr->ether_type) != ETH_PROTOCOL_IP4)
+  {
+    printf("ntohs(ethernet_hdr_ptr->ether_type) actual result: 0x%X"
+           " expected result: 0x%X (Type IPv4)",
+           ntohs(ethernet_hdr_ptr->ether_type),
+           ETH_PROTOCOL_IP4);
+
     return action_skip;
   }
 

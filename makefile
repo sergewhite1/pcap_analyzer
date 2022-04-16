@@ -17,3 +17,7 @@ pcap_analyzer_ut.o: pcap_analyzer_ut.c
 
 pcap_analyzer_ut: libpcap_analyzer.a pcap_analyzer_ut.o
 	gcc pcap_analyzer_ut.o -static  -lpcap_analyzer -L. -o pcap_analyzer_ut
+
+clean:
+	rm -v libpcap_analyzer.a pcap_analyzer pcap_analyzer_ut
+	rm -v *.o

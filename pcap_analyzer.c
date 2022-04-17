@@ -41,7 +41,7 @@ int process_pcap_file(const char* inp_filename,
   FILE* out_file = NULL;
 
   const int BUFF_SIZE = 2048;
-  const int PACKET_BODY_SIZE = BUFF_SIZE - sizeof(pcap_file_hdr_t);
+  const int MAX_PACKET_BODY_SIZE = BUFF_SIZE - sizeof(pcap_file_hdr_t);
 
   char buff[BUFF_SIZE];
 
@@ -165,6 +165,17 @@ int process_pcap_file(const char* inp_filename,
       packet_desc.ethernet_hdr_ptr = (ethernet_hdr_t*)
       (buff + sizeof(packet_record_t));
 
+      if (packet_desc.packet_record_ptr->captured_packet_length >=
+          MAX_PACKET_BODY_SIZE)
+      {
+        printf("packet_desc.packet_record_ptr->captured_packet_length=%d"
+               " but MAX_PACKET_BODY_SIZE=%d\n",
+               packet_desc.packet_record_ptr->captured_packet_length,
+               MAX_PACKET_BODY_SIZE);
+        ret = 1;
+        break;
+      }
+
       read_count = fread(packet_desc.ethernet_hdr_ptr,
                          1,
                          packet_desc.packet_record_ptr->captured_packet_length,
@@ -280,7 +291,7 @@ int process_pcap_file(const char* inp_filename,
   return ret;
 }
 
-int pcap_analyzer_set_verbose(int val)
+void pcap_analyzer_set_verbose(int val)
 {
   verbose = val;
 }

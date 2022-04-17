@@ -105,7 +105,7 @@ typedef struct __udp_hdr_t
   uint16_t checksum;
 } udp_hdr_t;
 
-#pragma pach (pop)
+#pragma pack (pop)
 
 char* mac_addr_to_str(const uint8_t* mac_addr_ptr);
 uint8_t get_ip_hdr_version(const ip_packet_t* ip_packet_ptr);
@@ -131,6 +131,6 @@ int process_pcap_file(const char* inp_filename,
                       const char* out_filename,
                       packet_process_func_t callback);
 
-int pcap_analyzer_set_verbose(int val);
+void pcap_analyzer_set_verbose(int val);
 
 #endif // ! PCAP_ANALYZER_H

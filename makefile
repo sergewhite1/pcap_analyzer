@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c99 -g
+CFLAGS = -std=c99 -Wall -g
 
 all: libpcap_analyzer.a pcap_analyzer pcap_analyzer_ut
 

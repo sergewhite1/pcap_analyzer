@@ -1,7 +1,11 @@
-#include "pcap_analyzer.h"
+extern "C"
+{
+  #include "pcap_analyzer.h"
+}
 
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
 
 action_t packet_process_example(const packet_desc_t* packet_desc_ptr)
 {
@@ -10,7 +14,7 @@ action_t packet_process_example(const packet_desc_t* packet_desc_ptr)
 
 int main(int argc, char* argv[])
 {
-  printf("Hello!\n");
+  std::cout << "Hello!" << std::endl;
   //for (int i = 0; i < argc; ++i)
   //{
   //  printf("argv[%d]=%s\n", i, argv[i]);

@@ -1,16 +1,26 @@
-#include "pcap_analyzer.h"
-
 #include <stdio.h>
 #include <string.h>
 
+#include <unordered_map>
+
+std::unordered_map<char, int> d;
+
+extern "C"
+{
+  #include "pcap_analyzer.h"
+}
+
+#include <iostream>
+
 action_t packet_process_example(const packet_desc_t* packet_desc_ptr)
 {
-  return action_copy;
+  std::cout << "index: " << packet_desc_ptr->index << std::endl;
+  return action_skip;
 }
 
 int main(int argc, char* argv[])
 {
-  printf("Hello!\n");
+  std::cout << "hello!!!!" << std::endl;
   //for (int i = 0; i < argc; ++i)
   //{
   //  printf("argv[%d]=%s\n", i, argv[i]);
@@ -23,10 +33,11 @@ int main(int argc, char* argv[])
   }
 
   const char* src_filename = argv[1];
-  const char* dst_filename = "result.pcap";
+  const char* dst_filename = "NULL";
 
   return process_pcap_file(src_filename,
                            dst_filename,
                            packet_process_example);
+
 }
 

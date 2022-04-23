@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
   }
 
   const char* src_filename = argv[1];
-  const char* dst_filename = "NULL";
+  const char* dst_filename = nullptr;
 
   return process_pcap_file(src_filename,
                            dst_filename,

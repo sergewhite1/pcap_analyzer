@@ -1,8 +1,8 @@
-CC = gcc
-CFLAGS = -std=c99 -Wall -Werror  -g
+CC        = gcc
+CFLAGS    = -std=c99   -Wall -Wextra -Werror -g
 
-CXX = g++
-CXXFLASGS = -std=c++11 -Wall -Werror -g
+CXX       = g++
+CXXFLASGS = -std=c++11 -Wall -Wextra -Werror -g
 
 all: libpcap_analyzer.a pcap_analyzer_ut analyzer
 

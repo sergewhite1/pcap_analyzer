@@ -40,8 +40,8 @@ int process_pcap_file(const char* inp_filename,
   FILE* inp_file = NULL;
   FILE* out_file = NULL;
 
-  const int BUFF_SIZE = 2048;
-  const int MAX_PACKET_BODY_SIZE = BUFF_SIZE - sizeof(pcap_file_hdr_t);
+  const uint32_t BUFF_SIZE = 2048;
+  const uint32_t MAX_PACKET_BODY_SIZE = BUFF_SIZE - sizeof(pcap_file_hdr_t);
 
   char buff[BUFF_SIZE];
 

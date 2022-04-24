@@ -97,6 +97,18 @@ typedef struct __ip_packet_t
   uint32_t dst_address;
 } ip_packet_t;
 
+typedef struct __tcp_hdr_t
+{
+  uint16_t src_port;
+  uint16_t dst_port;
+  uint32_t seq_number;
+  uint32_t ack_number;
+  uint16_t codes;
+  uint16_t window;
+  uint16_t checksum;
+  uint16_t urgent_pointer;
+} tcp_hdr_t;
+
 typedef struct __udp_hdr_t
 {
   uint16_t src_port;
@@ -110,6 +122,7 @@ typedef struct __udp_hdr_t
 char* mac_addr_to_str(const uint8_t* mac_addr_ptr);
 uint8_t get_ip_hdr_version(const ip_packet_t* ip_packet_ptr);
 uint16_t get_ip_hdr_len_in_bytes(const ip_packet_t* ip_packet_ptr);
+uint16_t get_tcp_hdr_len_in_bytes(const tcp_hdr_t* tcp_hdr_ptr);
 
 typedef struct __packet_desc_t
 {
@@ -117,6 +130,7 @@ typedef struct __packet_desc_t
   packet_record_t* packet_record_ptr;
   ethernet_hdr_t*  ethernet_hdr_ptr;
   ip_packet_t*     ip_packet_ptr;
+  tcp_hdr_t*       tcp_hdr_ptr;
   udp_hdr_t*       udp_hdr_ptr;
   uint8_t*         data;
   uint16_t         data_size;

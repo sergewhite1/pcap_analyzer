@@ -5,7 +5,7 @@
 
 #include "pcap_analyzer.h"
 
-int ipv4_udp_callback_result;
+int ipv4_udp_callback_result = 1;
 
 action_t ipv4_udp_test_callback(const packet_desc_t* packet_desc_ptr)
 {
@@ -366,7 +366,7 @@ int ipv4_udp_test()
   return ipv4_udp_callback_result;
 }
 
-int vlan_ipv4_udp_callback_result;
+int vlan_ipv4_udp_callback_result = 1;
 
 action_t vlan_ipv4_udp_test_callback(const packet_desc_t* packet_desc_ptr)
 {
@@ -429,6 +429,81 @@ int vlan_ipv4_udp_test()
   return vlan_ipv4_udp_callback_result;
 }
 
+int ipv4_tcp_callback_result = 1;
+
+
+action_t ipv4_tcp_test_callback(const packet_desc_t* packet_desc_ptr)
+{
+  ipv4_tcp_callback_result = 1;
+
+  if (packet_desc_ptr->udp_hdr_ptr != NULL)
+  {
+    printf("packet_desc_ptr->udp_hdr_ptr != NULL\n");
+    return action_skip;
+  }
+
+  if (packet_desc_ptr->tcp_hdr_ptr == NULL)
+  {
+    printf("packet_desc_ptr->tcp_hdr_ptr == NULL\n");
+    return action_skip;
+  }
+
+  uint16_t tcp_hdr_len_actual =
+  get_tcp_hdr_len_in_bytes(packet_desc_ptr->tcp_hdr_ptr);
+
+  uint16_t tcp_hdr_len_expeted = 20;
+
+  if (tcp_hdr_len_actual != tcp_hdr_len_expeted)
+  {
+    printf("tcp_hdr_len actual=%d, expected=%d\n",
+          tcp_hdr_len_actual,
+          tcp_hdr_len_expeted);
+    return action_skip;
+  }
+
+  uint16_t data_size_actual = packet_desc_ptr->data_size;
+  uint16_t data_size_expected = 759;
+
+  if (data_size_actual != data_size_expected)
+  {
+    printf("data_size actual: %d expected: %d\n",
+          data_size_actual,
+          data_size_expected);
+    return action_skip;
+  }
+
+  if (packet_desc_ptr->data == NULL)
+  {
+    printf("packet_desc_ptr->data == NULL\n");
+    return action_skip;
+  }
+
+  const uint8_t* data = packet_desc_ptr->data;
+  int data_comp = memcmp(data, " Internet Standards ", 20) &&
+                  (data[756] == 0x0A) &&
+                  (data[757] == 0x0C) &&
+                  (data[758] == 0x0A);
+
+  if (data_comp != 0)
+  {
+    printf("Data comparison failed!\n");
+    return action_skip;
+  }
+
+  ipv4_tcp_callback_result = 0;
+
+  return action_skip;
+}
+
+int ipv4_tcp_test()
+{
+  process_pcap_file("./pcap/ipv4_tcp.pcap",
+                    NULL,
+                    ipv4_tcp_test_callback);
+
+  return ipv4_tcp_callback_result;
+}
+
 typedef struct __test_record_t
 {
   const char* name;
@@ -437,7 +512,8 @@ typedef struct __test_record_t
 
 const test_record_t TEST_RECORDS[] = {
   {"     ipv4_udp_test",      ipv4_udp_test},
-  {"vlan_ipv4_udp_test", vlan_ipv4_udp_test}
+  {"vlan_ipv4_udp_test", vlan_ipv4_udp_test},
+  {"     ipv4_tcp_test",      ipv4_tcp_test}
 };
 
 const size_t TEST_COUT = sizeof(TEST_RECORDS) / sizeof(TEST_RECORDS[0]);

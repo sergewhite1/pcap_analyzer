@@ -30,6 +30,10 @@ uint16_t get_ip_hdr_len_in_bytes(const ip_packet_t* ip_packet_ptr)
   return (ip_packet_ptr->version_header_length & 0xF) * 4;
 }
 
+uint16_t get_tcp_hdr_len_in_bytes(const tcp_hdr_t* tcp_hdr_ptr)
+{
+  return (*((uint8_t*)&tcp_hdr_ptr->codes) >> 4) * 4;
+}
 static int verbose = 1;
 
 int process_pcap_file(const char* inp_filename,
@@ -131,6 +135,9 @@ int process_pcap_file(const char* inp_filename,
     while(1)
     {
       ++packet_index;
+
+      memset(&packet_desc, 0, sizeof(packet_desc));
+      packet_desc.packet_record_ptr = (packet_record_t*)buff;
 
       if (verbose && packet_index % 1000000 == 0)
       {
@@ -239,21 +246,47 @@ int process_pcap_file(const char* inp_filename,
         break;
       }
 
-      if (packet_desc.ip_packet_ptr->protocol != IPPROTO_UDP)
+      void* transport_hdr_ptr = (void*)(packet_desc.ip_packet_ptr) +
+            get_ip_hdr_len_in_bytes(packet_desc.ip_packet_ptr);
+
+      switch(packet_desc.ip_packet_ptr->protocol)
       {
-        printf("Error! ip_packet_ptr->protocol=%d Expected value: %d (UDP)\n",
-               packet_desc.ip_packet_ptr->protocol,
-               IPPROTO_UDP);
-        ret = 1;
+        case IPPROTO_TCP:
+          packet_desc.tcp_hdr_ptr = (tcp_hdr_t*)transport_hdr_ptr;
+
+          packet_desc.data = (uint8_t*)packet_desc.tcp_hdr_ptr +
+            get_tcp_hdr_len_in_bytes(packet_desc.tcp_hdr_ptr);
+
+          packet_desc.data_size =
+            htons(packet_desc.ip_packet_ptr->total_length)     -
+            get_ip_hdr_len_in_bytes (packet_desc.ip_packet_ptr) -
+            get_tcp_hdr_len_in_bytes(packet_desc.tcp_hdr_ptr);
+
         break;
+
+        case IPPROTO_UDP:
+          packet_desc.udp_hdr_ptr = (udp_hdr_t*)transport_hdr_ptr;
+
+           packet_desc.data = (uint8_t*) packet_desc.udp_hdr_ptr +
+                                         sizeof(udp_hdr_t);
+           packet_desc.data_size =
+             ntohs(packet_desc.udp_hdr_ptr->total_length) - sizeof(udp_hdr_t);
+
+        break;
+
+        default:
+          printf("Error! ip_packet_ptr->protocol=%d"
+                 " Expected values: %d (TCP), %d (UDP)\n",
+                  packet_desc.ip_packet_ptr->protocol,
+                  IPPROTO_TCP,
+                  IPPROTO_UDP);
+           ret = 1;
       }
 
-      packet_desc.udp_hdr_ptr = (udp_hdr_t*)(
-        (char*)(packet_desc.ip_packet_ptr) +
-        get_ip_hdr_len_in_bytes(packet_desc.ip_packet_ptr));
-
-      packet_desc.data = (uint8_t*) packet_desc.udp_hdr_ptr + sizeof(udp_hdr_t);
-      packet_desc.data_size = ntohs(packet_desc.udp_hdr_ptr->total_length) - sizeof(udp_hdr_t);
+      if (ret)
+      {
+        break;
+      }
 
       action_t action = callback(&packet_desc);
 

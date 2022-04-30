@@ -5,11 +5,15 @@
 
 #include "pcap_analyzer.h"
 
-int ipv4_udp_callback_result = 1;
+#define TEST_SUCCESS 0
+#define TEST_FAILED  1
+
+
+int ipv4_udp_callback_result = TEST_FAILED;
 
 action_t ipv4_udp_test_callback(const packet_desc_t* packet_desc_ptr)
 {
-  ipv4_udp_callback_result = 1;
+  ipv4_udp_callback_result = TEST_FAILED;
 
   const int packet_index_expected = 1;
 
@@ -353,7 +357,7 @@ action_t ipv4_udp_test_callback(const packet_desc_t* packet_desc_ptr)
     return action_skip;
   }
 
-  ipv4_udp_callback_result = 0;
+  ipv4_udp_callback_result = TEST_SUCCESS;
 
   return action_skip;
 }
@@ -366,11 +370,11 @@ int ipv4_udp_test()
   return ipv4_udp_callback_result;
 }
 
-int vlan_ipv4_udp_callback_result = 1;
+int vlan_ipv4_udp_callback_result = TEST_FAILED;
 
 action_t vlan_ipv4_udp_test_callback(const packet_desc_t* packet_desc_ptr)
 {
-  vlan_ipv4_udp_callback_result = 1;
+  vlan_ipv4_udp_callback_result = TEST_FAILED;
 
   const int packet_index_expected = 1;
 
@@ -415,7 +419,7 @@ action_t vlan_ipv4_udp_test_callback(const packet_desc_t* packet_desc_ptr)
     return action_skip;
   }
 
-  vlan_ipv4_udp_callback_result = 0;
+  vlan_ipv4_udp_callback_result = TEST_SUCCESS;
 
   return action_skip;
 }
@@ -429,12 +433,12 @@ int vlan_ipv4_udp_test()
   return vlan_ipv4_udp_callback_result;
 }
 
-int ipv4_tcp_callback_result = 1;
+int ipv4_tcp_callback_result = TEST_FAILED;
 
 
 action_t ipv4_tcp_test_callback(const packet_desc_t* packet_desc_ptr)
 {
-  ipv4_tcp_callback_result = 1;
+  ipv4_tcp_callback_result = TEST_FAILED;
 
   if (packet_desc_ptr->udp_hdr_ptr != NULL)
   {
@@ -490,7 +494,7 @@ action_t ipv4_tcp_test_callback(const packet_desc_t* packet_desc_ptr)
     return action_skip;
   }
 
-  ipv4_tcp_callback_result = 0;
+  ipv4_tcp_callback_result = TEST_SUCCESS;
 
   return action_skip;
 }
@@ -504,6 +508,25 @@ int ipv4_tcp_test()
   return ipv4_tcp_callback_result;
 }
 
+int vlan_ipv4_tcp_callback_result = TEST_FAILED;
+
+action_t vlan_ipv4_tcp_test_callback(const packet_desc_t* packet_desc_ptr)
+{
+  (void)packet_desc_ptr;
+  vlan_ipv4_tcp_callback_result = TEST_FAILED;
+
+  return action_skip;
+}
+
+int vlan_ipv4_tcp_test()
+{
+  process_pcap_file("./pcap/vlan_ipv4_tcp.pcap",
+                    NULL,
+                    vlan_ipv4_tcp_test_callback);
+
+  return vlan_ipv4_tcp_callback_result;
+}
+
 typedef struct __test_record_t
 {
   const char* name;
@@ -513,7 +536,8 @@ typedef struct __test_record_t
 const test_record_t TEST_RECORDS[] = {
   {"     ipv4_udp_test",      ipv4_udp_test},
   {"vlan_ipv4_udp_test", vlan_ipv4_udp_test},
-  {"     ipv4_tcp_test",      ipv4_tcp_test}
+  {"     ipv4_tcp_test",      ipv4_tcp_test},
+  //{"vlan_ipv4_tcp_test", vlan_ipv4_tcp_test}
 };
 
 const size_t TEST_COUT = sizeof(TEST_RECORDS) / sizeof(TEST_RECORDS[0]);

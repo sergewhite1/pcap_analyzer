@@ -2,7 +2,7 @@ CC        = gcc
 CFLAGS    = -std=c99   -Wall -Wextra -Werror -g
 
 CXX       = g++
-CXXFLASGS = -std=c++11 -Wall -Wextra -Werror -g
+CXXFLAGS  = -std=c++11 -Wall -Wextra -Werror -g
 
 all: libpcap_analyzer.a pcap_analyzer_ut analyzer
 

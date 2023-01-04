@@ -7,7 +7,7 @@ std::unordered_map<char, int> d;
 
 extern "C"
 {
-  #include "pcap_analyzer.h"
+  #include "../pcap_analyzer_lib/include/pcap_analyzer.h"
 }
 
 #include <iostream>

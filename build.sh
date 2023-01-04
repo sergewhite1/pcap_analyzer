@@ -1,2 +1,2 @@
 make &&
-./pcap_analyzer_ut
+out/bin/pcap_analyzer_ut

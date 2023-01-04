@@ -3,7 +3,7 @@
 
 #include <arpa/inet.h>
 
-#include "pcap_analyzer.h"
+#include "../include/pcap_analyzer.h"
 
 #define TEST_SUCCESS 0
 #define TEST_FAILED  1
@@ -364,7 +364,7 @@ action_t ipv4_udp_test_callback(const packet_desc_t* packet_desc_ptr)
 
 int ipv4_udp_test()
 {
-  process_pcap_file("./pcap/ipv4_udp.pcap",
+  process_pcap_file("./pcap_analyzer_lib/ut/pcap/ipv4_udp.pcap",
                     NULL,
                     ipv4_udp_test_callback);
   return ipv4_udp_callback_result;
@@ -426,7 +426,7 @@ action_t vlan_ipv4_udp_test_callback(const packet_desc_t* packet_desc_ptr)
 
 int vlan_ipv4_udp_test()
 {
-  process_pcap_file("./pcap/vlan_ipv4_udp.pcap",
+  process_pcap_file("./pcap_analyzer_lib/ut/pcap/vlan_ipv4_udp.pcap",
                     NULL,
                     vlan_ipv4_udp_test_callback);
 
@@ -501,7 +501,7 @@ action_t ipv4_tcp_test_callback(const packet_desc_t* packet_desc_ptr)
 
 int ipv4_tcp_test()
 {
-  process_pcap_file("./pcap/ipv4_tcp.pcap",
+  process_pcap_file("./pcap_analyzer_lib/ut/pcap/ipv4_tcp.pcap",
                     NULL,
                     ipv4_tcp_test_callback);
 
@@ -520,7 +520,7 @@ action_t vlan_ipv4_tcp_test_callback(const packet_desc_t* packet_desc_ptr)
 
 int vlan_ipv4_tcp_test()
 {
-  process_pcap_file("./pcap/vlan_ipv4_tcp.pcap",
+  process_pcap_file("./pcap_analyzer_lib/ut/pcap/vlan_ipv4_tcp.pcap",
                     NULL,
                     vlan_ipv4_tcp_test_callback);
 

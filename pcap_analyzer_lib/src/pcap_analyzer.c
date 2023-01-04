@@ -1,4 +1,4 @@
-#include "pcap_analyzer.h"
+#include "../include/pcap_analyzer.h"
 
 #include <errno.h>
 #include <stdio.h>

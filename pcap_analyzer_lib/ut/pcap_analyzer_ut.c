@@ -3,7 +3,7 @@
 
 #include <arpa/inet.h>
 
-#include "../include/pcap_analyzer.h"
+#include "pcap_analyzer_lib/include/pcap_analyzer.h"
 
 #define TEST_SUCCESS 0
 #define TEST_FAILED  1

@@ -1,8 +1,8 @@
 CC        = gcc
-CFLAGS    = -std=c99   -Wall -Wextra -Werror -g
+CFLAGS    = -std=c99   -Wall -Wextra -Werror -g -I.
 
 CXX       = g++
-CXXFLAGS  = -std=c++11 -Wall -Wextra -Werror -g
+CXXFLAGS  = -std=c++11 -Wall -Wextra -Werror -g -I.
 
 OUT_DIR   = out
 BIN_DIR   = $(OUT_DIR)/bin

@@ -41,6 +41,24 @@ public:
 
   std::string to_string() const;
 
+  bool is_zero() const
+  {
+    return seconds_ == 0 && ms_or_ns_ == 0;
+  }
+
+  bool operator==(const PcapTime& rhs) const
+  {
+    return seconds_  == rhs.seconds_ &&
+           ms_or_ns_ == rhs.ms_or_ns_;
+  }
+
+  bool operator!=(const PcapTime& rhs) const
+  {
+    return ! (*this == rhs);
+  }
+
+  PcapTime operator-(const PcapTime& rhs) const;
+
 private:
   time_t   seconds_  = 0;
   uint32_t ms_or_ns_ = 0;

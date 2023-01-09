@@ -17,10 +17,11 @@ action_t packet_process_example(const packet_desc_t* packet_desc_ptr)
 {
   std::cout << "index: " << packet_desc_ptr->index << std::endl;
 
-  PcapAnalyzer::PcapTime pt;
+  PcapAnalyzer::PcapTime pt(packet_desc_ptr);
 
-  std::cout << "pt.seconds()= "  << pt.seconds() << std::endl;
-  std::cout << "pt.to_strin()="  << pt.to_string() << std::endl;
+  std::cout << "pt.seconds() =" << pt.seconds() << std::endl;
+  std::cout << "pt.ms_or_ns()=" << pt.ms_or_ns() << std::endl;
+  std::cout << "pt.to_strin()=" << pt.to_string() << std::endl;
 
   return action_skip;
 }

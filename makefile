@@ -22,11 +22,13 @@ directories:
 	mkdir -p ${OBJ_DIR}/pcap_analyzer_lib
 	mkdir -p ${OBJ_DIR}/pcap_analyzer_lib/src
 	mkdir -p ${OBJ_DIR}/pcap_analyzer_lib/ut
+	mkdir -p ${OBJ_DIR}/utils
 	mkdir -p $(BIN_DIR)
 	mkdir -p $(LIB_DIR)
 
 include demo/module.mk
 include pcap_analyzer_lib/module.mk
+include utils/module.mk
 
 clean:
 	rm -rf out

@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <string.h>
-
 #include <unordered_map>
+
+#include "utils/pcap_time.h"
 
 std::unordered_map<char, int> d;
 
@@ -15,6 +16,12 @@ extern "C"
 action_t packet_process_example(const packet_desc_t* packet_desc_ptr)
 {
   std::cout << "index: " << packet_desc_ptr->index << std::endl;
+
+  PcapAnalyzer::PcapTime pt;
+
+  std::cout << "pt.seconds()= "  << pt.seconds() << std::endl;
+  std::cout << "pt.to_strin()="  << pt.to_string() << std::endl;
+
   return action_skip;
 }
 

@@ -1,4 +1,5 @@
-pcap_time.o: utils/pcap_time.cpp \
-             utils/pcap_time.h
+pcap_time_o = $(OBJ_DIR)/utils/pcap_time.o
 
-	$(CXX) -c $(CXXFLAGS) -o $(OBJ_DIR)/utils/pcap_time.o utils/pcap_time.cpp
+$(pcap_time_o): utils/pcap_time.cpp \
+                utils/pcap_time.h
+	$(CXX) -c $(CXXFLAGS) -o $(pcap_time_o) utils/pcap_time.cpp

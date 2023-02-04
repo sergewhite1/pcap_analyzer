@@ -45,6 +45,21 @@ namespace PcapAnalyzer
     return ss.str();
   }
 
+  bool PcapTime::operator<(const PcapTime& rhs) const
+  {
+    if (seconds_ < rhs.seconds_)
+    {
+      return true;
+    }
+
+    if (seconds_ == rhs.seconds_)
+    {
+      return ms_or_ns_ < rhs.ms_or_ns_;
+    }
+
+    return false;
+  }
+
   PcapTime PcapTime::operator-(const PcapTime& rhs) const
   {
     // formula: *this - rhs

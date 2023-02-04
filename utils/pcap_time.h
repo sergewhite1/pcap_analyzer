@@ -60,6 +60,8 @@ public:
     return ! (*this == rhs);
   }
 
+  bool operator<(const PcapTime& rhs) const;
+
   PcapTime operator-(const PcapTime& rhs) const;
 
 private:

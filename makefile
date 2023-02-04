@@ -9,15 +9,18 @@ BIN_DIR   = $(OUT_DIR)/bin
 LIB_DIR   = $(OUT_DIR)/lib
 OBJ_DIR   = $(OUT_DIR)/obj
 
-# Build Directories (append in module.mk files)
+# Special variable (append in module.mk files)
 
-BUILD_DIRS = $(OUT_DIR) $(BIN_DIR) $(LIB_DIR) $(OBJ_DIR)
-PCAP_ANALYZER_TARGETS = make_build_dirs
+PCAP_ANALYZER_BUILD_DIRS  = $(OUT_DIR) $(BIN_DIR) $(LIB_DIR) $(OBJ_DIR)
+PCAP_ANALYZER_TARGETS_OBJ =
+PCAP_ANALYZER_TARGETS_LIB =
+PCAP_ANALYZER_TARGETS_EXE =
+
 
 all:
 
 make_build_dirs:
-	@for dir in $(BUILD_DIRS); do \
+	@for dir in $(PCAP_ANALYZER_BUILD_DIRS); do \
 	  mkdir -p $$dir; \
 	done
 
@@ -25,7 +28,10 @@ modules = $(shell find . -name module.mk)
 include $(modules)
 
 
-all: $(PCAP_ANALYZER_TARGETS)
+all: make_build_dirs              \
+     $(PCAP_ANALYZER_TARGETS_OBJ) \
+     $(PCAP_ANALYZER_TARGETS_LIB) \
+     $(PCAP_ANALYZER_TARGETS_EXE)
 
 clean:
 	rm -rf out

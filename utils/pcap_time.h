@@ -30,6 +30,9 @@ public:
     ms_or_ns_(__ms_or_ns)
   {}
 
+  PcapTime(int year, int month, int day,
+           int hour, int minute, int second, int ms_or_ns);
+
   time_t   seconds()  const { return seconds_;  }
   uint32_t ms_or_ns() const { return ms_or_ns_; }
 

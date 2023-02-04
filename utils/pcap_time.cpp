@@ -1,10 +1,31 @@
 #include "pcap_time.h"
 
+#include <cstring>
 #include <iomanip>
 #include <sstream>
 
 namespace PcapAnalyzer 
 {
+
+  PcapTime::PcapTime(int year, int month, int day,
+                     int hour, int minute, int second, int ms_or_ns)
+  {
+    struct tm tm_obj;
+
+    memset(&tm_obj, 0, sizeof(tm_obj));
+
+    tm_obj.tm_year = year - 1900;
+    tm_obj.tm_mon  = month - 1;
+    tm_obj.tm_mday = day;
+    tm_obj.tm_hour = hour;
+    tm_obj.tm_min  = minute;
+    tm_obj.tm_sec  = second;
+
+    seconds_  = timegm(&tm_obj); // mktime uses local time zone
+    ms_or_ns_ = ms_or_ns;
+  }
+
+
   std::string PcapTime::to_string() const
   {
     // Output format: YYYY-MM-DD HH:MM:SS.ms_or_ns

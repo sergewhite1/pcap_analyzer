@@ -20,6 +20,15 @@ int run_PcapTime_ut()
     CHECK_EQUAL(actual_result, expected_result);
   }
 
+  // human readable ctor test
+  {
+    PcapAnalyzer::PcapTime pt(2022, 12, 28, 12, 15, 30, 145);
+    std::string   actual_result = pt.to_string();
+    std::string expected_result = "2022-12-28 12:15:30.000145";
+
+    CHECK_EQUAL(actual_result, expected_result);
+  }
+
   // operator- test
   {
     PcapAnalyzer::PcapTime t1(100, 200);

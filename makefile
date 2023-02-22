@@ -33,6 +33,7 @@ all: make_build_dirs              \
      $(PCAP_ANALYZER_TARGETS_LIB) \
      $(PCAP_ANALYZER_TARGETS_EXE)
 
+.PHONY: clean
 clean:
 	rm -rf out
 

@@ -92,4 +92,11 @@ namespace PcapAnalyzer
 
     return PcapTime(new_seconds, ms_or_ns_ - rhs.ms_or_ns_);
   }
+
+  std::ostream& operator<< (std::ostream& stream, const PcapTime& pt)
+  {
+    stream << pt.to_string();
+    return stream;
+  }
+
 }  // namespace PcapAnalyzer

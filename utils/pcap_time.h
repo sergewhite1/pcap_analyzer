@@ -69,6 +69,8 @@ private:
   uint32_t ms_or_ns_ = 0;
 };
 
+std::ostream& operator<< (std::ostream& stream, const PcapTime& pt);
+
 } // namespace PcapAnalyzer
 
 #endif // ! PCAP_TIME_H_

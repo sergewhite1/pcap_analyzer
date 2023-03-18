@@ -26,7 +26,7 @@ $(pcap_time_ut): $(pcap_time_ut_o) $(pcap_time_o)
 	@echo run pcap_time_ut...
 	$(pcap_time_ut)
 
-peak_rate_calc_o = $(OBJ_DIR)/utils/peak_rate_calc
+peak_rate_calc_o = $(OBJ_DIR)/utils/peak_rate_calc.o
 
 PCAP_ANALYZER_TARGETS_OBJ += $(peak_rate_calc_o)
 

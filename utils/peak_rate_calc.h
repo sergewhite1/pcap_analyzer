@@ -14,8 +14,8 @@ public:
 
   void add(PcapTime pt);
   void stop();
-  int packets_per_second();
-  PcapTime peak_pps_time_begin();
+  int packets_per_second() const;
+  PcapTime peak_pps_time_begin() const;
   void reset();
 
 private:

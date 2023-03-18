@@ -46,12 +46,12 @@ namespace PcapAnalyzer
     }
   }
 
-  int PeakRateCalc::packets_per_second()
+  int PeakRateCalc::packets_per_second() const
   {
     return max_.count;
   }
 
-  PcapTime PeakRateCalc::peak_pps_time_begin()
+  PcapTime PeakRateCalc::peak_pps_time_begin() const
   {
     return max_.time;
   }

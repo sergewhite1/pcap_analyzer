@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <sstream>
 
-namespace PcapAnalyzer 
+namespace PcapAnalyzer
 {
 
   PcapTime::PcapTime(int year, int month, int day,
@@ -58,6 +58,11 @@ namespace PcapAnalyzer
     }
 
     return false;
+  }
+
+  bool PcapTime::operator<=(const PcapTime& rhs) const
+  {
+    return (*this < rhs) || (*this == rhs);
   }
 
   PcapTime PcapTime::operator-(const PcapTime& rhs) const

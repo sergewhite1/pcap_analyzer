@@ -1,12 +1,9 @@
-#include "peak_rate_calc.h"
-
-// temp
-#include <iostream>
+#include "strict_peak_rate_calc.h"
 
 namespace PcapAnalyzer
 {
 
-  void PeakRateCalc::add(PcapTime pt)
+  void StrcitPeakRateCalc::add(PcapTime pt)
   {
     int pop_count = 0;
 
@@ -34,7 +31,7 @@ namespace PcapAnalyzer
     sequence_.emplace_back(1, pt);
   }
 
-  void PeakRateCalc::stop()
+  void StrcitPeakRateCalc::stop()
   {
     if (!sequence_.empty())
     {
@@ -46,17 +43,17 @@ namespace PcapAnalyzer
     }
   }
 
-  int PeakRateCalc::packets_per_second() const
+  int StrcitPeakRateCalc::packets_per_second() const
   {
     return max_.count;
   }
 
-  PcapTime PeakRateCalc::peak_pps_time_begin() const
+  PcapTime StrcitPeakRateCalc::peak_pps_time_begin() const
   {
     return max_.time;
   }
 
-  void PeakRateCalc::reset()
+  void StrcitPeakRateCalc::reset()
   {
     sequence_.clear();
 

@@ -1,14 +1,14 @@
-#include "pcap_time.h"
-#include "peak_rate_calc.h"
-#include "ut.h"
+#include "strict_peak_rate_calc.h"
+#include "utils/pcap_time.h"
+#include "utils/ut.h"
 
-int run_PeakRateCalc_ut()
+int run_StrictPeakRateCalc_ut()
 {
   using namespace PcapAnalyzer;
 
   int ret = 0;
 
-  PeakRateCalc peakRateCalc;
+  StrcitPeakRateCalc peakRateCalc;
   int packets_per_second = 0;
   PcapTime peak_pps_time_begin;
 
@@ -115,5 +115,5 @@ int run_PeakRateCalc_ut()
 
 int main()
 {
-  return run_PeakRateCalc_ut();
+  return run_StrictPeakRateCalc_ut();
 }

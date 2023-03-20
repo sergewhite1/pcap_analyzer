@@ -31,5 +31,5 @@ PCAP_ANALYZER_TARGETS_EXE += $(pcap_analyzer_ut)
 $(pcap_analyzer_ut): $(pcap_analyzer_lib) $(pcap_analyzer_ut_o)
 	$(CC) -o $@ $(pcap_analyzer_ut_o) -L$(LIB_DIR) -lpcap_analyzer
 	@echo run pcap_analyzer_ut...
-	$(pcap_analyzer_ut)
+	$@
 

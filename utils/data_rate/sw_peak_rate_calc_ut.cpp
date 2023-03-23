@@ -7,7 +7,7 @@ int run_SWPeakRateCalc_ut()
 
   int ret = 0;
 
-  SWPeakRateCalc peakRateCalc;
+  SWPeakRateCalc peakRateCalc("test");
   int packets_per_second = 0;
   PcapTime peak_pps_time_begin;
 

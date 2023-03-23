@@ -3,7 +3,11 @@
 namespace PcapAnalyzer
 {
 
-  void StrcitPeakRateCalc::add(PcapTime pt)
+  StrictPeakRateCalc::StrictPeakRateCalc(const char* obj_name)
+    : obj_name_(obj_name)
+  {}
+
+  void StrictPeakRateCalc::add(PcapTime pt)
   {
     int pop_count = 0;
 
@@ -31,7 +35,7 @@ namespace PcapAnalyzer
     sequence_.emplace_back(1, pt);
   }
 
-  void StrcitPeakRateCalc::stop()
+  void StrictPeakRateCalc::stop()
   {
     if (!sequence_.empty())
     {
@@ -43,17 +47,17 @@ namespace PcapAnalyzer
     }
   }
 
-  int StrcitPeakRateCalc::packets_per_second() const
+  int StrictPeakRateCalc::packets_per_second() const
   {
     return max_.count;
   }
 
-  PcapTime StrcitPeakRateCalc::peak_pps_time_begin() const
+  PcapTime StrictPeakRateCalc::peak_pps_time_begin() const
   {
     return max_.time;
   }
 
-  void StrcitPeakRateCalc::reset()
+  void StrictPeakRateCalc::reset()
   {
     sequence_.clear();
 

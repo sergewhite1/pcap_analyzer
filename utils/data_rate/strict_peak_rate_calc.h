@@ -7,15 +7,27 @@
 
 namespace PcapAnalyzer
 {
-  class StrcitPeakRateCalc : public PeakRateCalc
+  class StrictPeakRateCalc : public PeakRateCalc
   {
     public:
+
+      StrictPeakRateCalc(const char* obj_name);
 
       virtual void add(PcapTime pt) override;
       virtual void stop() override;
       virtual int packets_per_second() const override;
       virtual PcapTime peak_pps_time_begin() const override;
       virtual void reset() override;
+
+      virtual std::string obj_name() const override
+      {
+        return obj_name_;
+      }
+
+      virtual std::string algorithm_name() const override
+      {
+        return "Strict";
+      }
 
     private:
 
@@ -35,6 +47,8 @@ namespace PcapAnalyzer
 
       std::list<PacketData> sequence_;
       PacketData max_;
+
+      std::string obj_name_;
     };
 }  // namespace PcapAnalyzer
 

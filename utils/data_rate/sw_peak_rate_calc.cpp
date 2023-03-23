@@ -3,6 +3,10 @@
 namespace PcapAnalyzer
 {
 
+  SWPeakRateCalc::SWPeakRateCalc(const char* obj_name)
+    : obj_name_(obj_name)
+  {}
+
   void SWPeakRateCalc::add(PcapTime pt)
   {
     if (pt.seconds() == curr_time_begin_.seconds())

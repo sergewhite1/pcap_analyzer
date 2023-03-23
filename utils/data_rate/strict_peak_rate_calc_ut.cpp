@@ -8,7 +8,7 @@ int run_StrictPeakRateCalc_ut()
 
   int ret = 0;
 
-  StrcitPeakRateCalc peakRateCalc;
+  StrictPeakRateCalc peakRateCalc("test");
   int packets_per_second = 0;
   PcapTime peak_pps_time_begin;
 

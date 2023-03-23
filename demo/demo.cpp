@@ -1,8 +1,10 @@
+#include <chrono>
 #include <stdio.h>
 #include <string.h>
 #include <unordered_map>
 
 #include "utils/pcap_time.h"
+#include "utils/tp_to_str.h"
 
 std::unordered_map<char, int> d;
 
@@ -29,6 +31,10 @@ action_t packet_process_example(const packet_desc_t* packet_desc_ptr)
 int main(int argc, char* argv[])
 {
   std::cout << "hello!!!!" << std::endl;
+
+  auto t = std::chrono::system_clock::now();
+  std::cout << "Start Time: " << PcapAnalyzer::tp_to_str(t) << std::endl;
+
   //for (int i = 0; i < argc; ++i)
   //{
   //  printf("argv[%d]=%s\n", i, argv[i]);

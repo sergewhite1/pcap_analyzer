@@ -7,9 +7,10 @@ PCAP_ANALYZER_TARGETS_EXE += $(demo)
 demo_o = $(OBJ_DIR)/demo/demo.o
 
 PCAP_ANALYZER_TARGETS_OBJ += $(demo_o)
- 
+
 $(demo_o): demo/demo.cpp     \
-           utils/pcap_time.h
+           utils/pcap_time.h \
+           utils/tp_to_str.h
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
 $(demo): $(demo_o)               \

@@ -64,16 +64,30 @@ int run_PcapTime_ut()
     CHECK_EQUAL(t3.ms_or_ns(), 1);
   }
 
-  // operator == test =========================================================
+  // comp operator tests ======================================================
   {
     PcapAnalyzer::PcapTime t1(500, 500);
-    PcapAnalyzer::PcapTime t2(500, 500);
+    PcapAnalyzer::PcapTime t2(700, 300);
+    PcapAnalyzer::PcapTime t3(700, 300);
+    PcapAnalyzer::PcapTime t4(800, 0);
 
-    CHECK_TRUE(t1 == t2);
+    CHECK_FALSE (t1 == t2);
+    CHECK_TRUE  (t1 <  t2);
+    CHECK_TRUE  (t1 <= t2);
+    CHECK_FALSE (t1 >  t2);
+    CHECK_FALSE (t1 >= t2);
 
-    t2.set(123, 2);
+    CHECK_TRUE  (t2 == t3);
+    CHECK_FALSE (t2 <  t3);
+    CHECK_TRUE  (t2 <= t3);
+    CHECK_FALSE (t2 >  t3);
+    CHECK_TRUE  (t2 >= t3);
 
-    CHECK_FALSE(t1 == t2);
+    CHECK_FALSE (t3 == t4);
+    CHECK_TRUE  (t3 <  t4);
+    CHECK_TRUE  (t3 <= t4);
+    CHECK_FALSE (t3 >  t4);
+    CHECK_FALSE (t3 >= t4);
   }
 
   if (ret == 0)

@@ -10,7 +10,7 @@ int run_PcapTime_ut()
 
   int ret = 0;
 
-  // to_string test
+  // to_string test ===========================================================
   {
     PcapAnalyzer::PcapTime pt(1671625208, 123);
 
@@ -20,7 +20,7 @@ int run_PcapTime_ut()
     CHECK_EQUAL(actual_result, expected_result);
   }
 
-  // human readable ctor test
+  // human readable ctor test =================================================
   {
     PcapAnalyzer::PcapTime pt(2022, 12, 28, 12, 15, 30, 145);
     std::string   actual_result = pt.to_string();
@@ -29,7 +29,7 @@ int run_PcapTime_ut()
     CHECK_EQUAL(actual_result, expected_result);
   }
 
-  // operator- test
+  // operator- test ===========================================================
   {
     PcapAnalyzer::PcapTime t1(100, 200);
     PcapAnalyzer::PcapTime t2( 50, 123);
@@ -64,6 +64,18 @@ int run_PcapTime_ut()
     CHECK_EQUAL(t3.ms_or_ns(), 1);
   }
 
+  // operator == test =========================================================
+  {
+    PcapAnalyzer::PcapTime t1(500, 500);
+    PcapAnalyzer::PcapTime t2(500, 500);
+
+    CHECK_TRUE(t1 == t2);
+
+    t2.set(123, 2);
+
+    CHECK_FALSE(t1 == t2);
+  }
+
   if (ret == 0)
   {
     std::cout << "SUCCESS" << std::endl;
@@ -72,6 +84,8 @@ int run_PcapTime_ut()
   {
     std::cout << "FAILED!" << std::endl;
   }
+
+  //
 
   return ret;
 }

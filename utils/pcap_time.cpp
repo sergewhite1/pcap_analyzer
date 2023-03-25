@@ -65,6 +65,16 @@ namespace PcapAnalyzer
     return (*this < rhs) || (*this == rhs);
   }
 
+  bool PcapTime::operator>  (const PcapTime& rhs) const
+  {
+    return rhs < *this;
+  }
+
+  bool PcapTime::operator>= (const PcapTime& rhs) const
+  {
+    return rhs <= *this;
+  }
+
   PcapTime PcapTime::operator-(const PcapTime& rhs) const
   {
     // formula: *this - rhs

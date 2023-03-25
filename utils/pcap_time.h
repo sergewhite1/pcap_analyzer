@@ -62,6 +62,8 @@ public:
 
   bool operator<  (const PcapTime& rhs) const;
   bool operator<= (const PcapTime& rhs) const;
+  bool operator>  (const PcapTime& rhs) const;
+  bool operator>= (const PcapTime& rhs) const;
 
   PcapTime operator-(const PcapTime& rhs) const;
 

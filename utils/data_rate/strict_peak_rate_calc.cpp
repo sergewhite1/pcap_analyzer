@@ -9,60 +9,59 @@ namespace PcapAnalyzer
 
   void StrictPeakRateCalc::add(PcapTime pt)
   {
-    int pop_count = 0;
-
-    for (auto& elem : sequence_)
+    while (!sequence_.empty())
     {
-      if (pt - elem.time <= PcapTime(1, 0))
+      if ((pt - sequence_.front()) <= PcapTime(1, 0))
       {
-        elem.count++;
+        break;
       }
-      else
-      {
-        if (max_.count < elem.count )
-        {
-          max_ = elem;
-        }
-        pop_count++;
-      }
-    }
 
-    for (int i = 0; i < pop_count; ++i)
-    {
+      if (peak_pps_ < size_)
+      {
+        peak_pps_ = size_;
+        peak_pps_time_begin_ = sequence_.front();
+      }
+
       sequence_.pop_front();
+      size_--;
     }
 
-    sequence_.emplace_back(1, pt);
+    sequence_.push_back(pt);
+    size_++;
   }
 
   void StrictPeakRateCalc::stop()
   {
     if (!sequence_.empty())
     {
-      if (max_.count < sequence_.front().count)
+      if (peak_pps_ < size_)
       {
-        max_ = sequence_.front();
+        peak_pps_ = size_;
+        peak_pps_time_begin_ = sequence_.front();
+
         sequence_.pop_front();
+        size_--;
       }
     }
   }
 
   int StrictPeakRateCalc::packets_per_second() const
   {
-    return max_.count;
+    return peak_pps_;
   }
 
   PcapTime StrictPeakRateCalc::peak_pps_time_begin() const
   {
-    return max_.time;
+    return peak_pps_time_begin_;
   }
 
   void StrictPeakRateCalc::reset()
   {
     sequence_.clear();
+    size_ = 0;
 
-    max_.count = 0;
-    max_.time  = PcapTime(0, 0);
+    peak_pps_ = 0;
+    peak_pps_time_begin_.set(0, 0);
   }
 
 } // namespace PcapAnalyzer

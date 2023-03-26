@@ -30,23 +30,11 @@ namespace PcapAnalyzer
       }
 
     private:
+      std::list<PcapTime> sequence_;
+      int size_ = 0;
 
-      class PacketData
-      {
-        public:
-          PacketData() = default;
-
-          PacketData(int __count, PcapTime __time)
-            : count(__count),
-              time(__time)
-          {}
-
-          int count = 0;
-          PcapTime time;
-      };
-
-      std::list<PacketData> sequence_;
-      PacketData max_;
+      int peak_pps_ = 0;
+      PcapTime peak_pps_time_begin_;
 
       std::string obj_name_;
     };

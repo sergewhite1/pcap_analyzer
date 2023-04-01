@@ -4,6 +4,8 @@
 
 int run_StrictPeakRateCalc_ut()
 {
+  UT_PRINT_START();
+
   using namespace PcapAnalyzer;
 
   int ret = 0;
@@ -127,6 +129,8 @@ int run_StrictPeakRateCalc_ut()
 
   peak_pps_time_begin = peakRateCalc.peak_pps_time_begin();
   CHECK_EQUAL(peak_pps_time_begin, PcapTime(1, 0));
+
+  UT_PRINT_RESULT();
 
   return ret;
 }

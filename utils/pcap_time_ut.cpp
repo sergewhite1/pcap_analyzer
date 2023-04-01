@@ -6,7 +6,7 @@
 
 int run_PcapTime_ut()
 {
-  std::cout << "run_PcapTime_ut..." << std::endl;
+  UT_PRINT_START();
 
   int ret = 0;
 
@@ -90,16 +90,7 @@ int run_PcapTime_ut()
     CHECK_FALSE (t3 >= t4);
   }
 
-  if (ret == 0)
-  {
-    std::cout << "SUCCESS" << std::endl;
-  }
-  else
-  {
-    std::cout << "FAILED!" << std::endl;
-  }
-
-  //
+  UT_PRINT_RESULT();
 
   return ret;
 }

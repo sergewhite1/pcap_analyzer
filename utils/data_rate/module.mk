@@ -67,3 +67,35 @@ $(sw_peak_rate_calc_ut): $(OBJ_DIR)/utils/data_rate/sw_peak_rate_calc_ut.o \
 	$(CXX) -o $@ $^
 	@echo run sw_peak_rate_calc_ut
 	$@
+
+rate_calc_o = $(OBJ_DIR)/utils/data_rate/rate_calc.o
+
+PCAP_ANALYZER_TARGETS_OBJ += $(rate_calc_o)
+
+$(rate_calc_o): utils/data_rate/rate_calc.cpp \
+                utils/data_rate/rate_calc.h   \
+                utils/pcap_time.h             \
+                pcap_analyzer_lib/include/pcap_analyzer.h
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+rate_calc_ut_o = $(OBJ_DIR)/utils/data_rate/rate_calc_ut.o
+
+PCAP_ANALYZER_TARGETS_OBJ += $(rate_calc_ut_o)
+
+$(rate_calc_ut_o): utils/data_rate/rate_calc_ut.cpp \
+                   utils/data_rate/rate_calc.h      \
+                   utils/ut.h                       \
+                   utils/pcap_time.h                \
+                   pcap_analyzer_lib/include/pcap_analyzer.h
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+rate_calc_ut = $(BIN_DIR)/rate_calc_ut
+
+PCAP_ANALYZER_TARGETS_EXE += $(rate_calc_ut)
+
+$(rate_calc_ut): $(OBJ_DIR)/utils/data_rate/rate_calc_ut.o \
+                 $(OBJ_DIR)/utils/data_rate/rate_calc.o    \
+                 $(OBJ_DIR)/utils/pcap_time.o
+	$(CXX) -o $@ $^
+	@echo run $@
+	$@

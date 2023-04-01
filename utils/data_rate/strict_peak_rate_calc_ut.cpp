@@ -110,6 +110,24 @@ int run_StrictPeakRateCalc_ut()
   peak_pps_time_begin = peakRateCalc.peak_pps_time_begin();
   CHECK_EQUAL(peak_pps_time_begin, PcapTime(4, 5));
 
+  // several packets received in one timestamp ================================
+
+  peakRateCalc.reset();
+
+  peakRateCalc.add(PcapTime(1, 0));
+  peakRateCalc.add(PcapTime(1, 0));
+  peakRateCalc.add(PcapTime(1, 0));
+
+  peakRateCalc.add(PcapTime(7, 0));
+
+  peakRateCalc.stop();
+
+  packets_per_second = peakRateCalc.packets_per_second();
+  CHECK_EQUAL(packets_per_second, 3);
+
+  peak_pps_time_begin = peakRateCalc.peak_pps_time_begin();
+  CHECK_EQUAL(peak_pps_time_begin, PcapTime(1, 0));
+
   return ret;
 }
 

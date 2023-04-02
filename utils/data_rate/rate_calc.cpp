@@ -42,8 +42,6 @@ namespace PcapAnalyzer
     {
       on_rate_event(sequence_.front(), size_);
     }
-
-    reset();
   }
 
 }

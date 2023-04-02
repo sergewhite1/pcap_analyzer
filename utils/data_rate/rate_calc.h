@@ -10,10 +10,12 @@ namespace PcapAnalyzer
   class RateCalc
   {
     public:
-      void add(PcapTime pt);
-      void reset();
-      void stop();
-    
+      virtual ~RateCalc() = default;
+
+      virtual void add(PcapTime pt);
+      virtual void reset();
+      virtual void stop();
+
     protected:
       virtual void on_rate_event(PcapTime pt, int rate) = 0;
 

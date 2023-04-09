@@ -132,3 +132,43 @@ $(avg_rate_calc_ut): $(OBJ_DIR)/utils/data_rate/avg_rate_calc_ut.o \
 	$(CXX) -o $@ $^
 	@echo run $@
 	$@
+
+avg_rate_collection_o = $(OBJ_DIR)/utils/data_rate/avg_rate_collection.o
+
+PCAP_ANALYZER_TARGETS_OBJ += $(avg_rate_collection_o)
+
+$(avg_rate_collection_o): utils/data_rate/avg_rate_collection.cpp \
+                          utils/data_rate/avg_rate_collection.h   \
+                          utils/data_rate/avg_rate_calc.h         \
+                          utils/data_rate/rate_calc.h             \
+                          utils/pcap_time.h                       \
+                          pcap_analyzer_lib/include/pcap_analyzer.h
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+avg_rate_collection_ut_o = $(OBJ_DIR)/utils/data_rate/avg_rate_collection_ut.o
+
+PCAP_ANALYZER_TARGETS_OBJ += $(avg_rate_collection_ut_o)
+
+$(avg_rate_collection_ut_o): utils/data_rate/avg_rate_collection_ut.cpp \
+                             utils/ut.h                                 \
+                             utils/data_rate/strict_peak_rate_calc.h    \
+                             utils/data_rate/avg_rate_collection.h      \
+                             utils/data_rate/avg_rate_calc.h            \
+                             utils/data_rate/rate_calc.h                \
+                             utils/pcap_time.h                          \
+                             pcap_analyzer_lib/include/pcap_analyzer.h
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+avg_rate_collection_ut = $(BIN_DIR)/avg_rate_collection_ut
+
+PCAP_ANALYZER_TARGETS_EXE += $(avg_rate_collection_ut)
+
+$(avg_rate_collection_ut): $(OBJ_DIR)/utils/data_rate/avg_rate_collection_ut.o \
+                           $(OBJ_DIR)/utils/data_rate/avg_rate_collection.o    \
+                           $(OBJ_DIR)/utils/data_rate/avg_rate_calc.o          \
+                           $(OBJ_DIR)/utils/data_rate/rate_calc.o              \
+                           $(OBJ_DIR)/utils/data_rate/strict_peak_rate_calc.o  \
+                           $(OBJ_DIR)/utils/pcap_time.o
+	$(CXX) -o $@ $^
+	@echo run $@
+	$@

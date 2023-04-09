@@ -42,6 +42,9 @@ public:
     ms_or_ns_ = __ms_or_ns;
   }
 
+  void set(int year, int month, int day,
+           int hour, int minute, int second, int ms_or_ns);
+
   std::string to_string() const;
 
   bool is_zero() const

@@ -10,6 +10,12 @@ namespace PcapAnalyzer
   PcapTime::PcapTime(int year, int month, int day,
                      int hour, int minute, int second, int ms_or_ns)
   {
+    set(year, month, day, hour, minute, second, ms_or_ns);
+  }
+
+  void PcapTime::set(int year, int month, int day,
+                     int hour, int minute, int second, int ms_or_ns)
+  {
     struct tm tm_obj;
 
     memset(&tm_obj, 0, sizeof(tm_obj));
@@ -24,7 +30,6 @@ namespace PcapAnalyzer
     seconds_  = timegm(&tm_obj); // mktime uses local time zone
     ms_or_ns_ = ms_or_ns;
   }
-
 
   std::string PcapTime::to_string() const
   {
